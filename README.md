@@ -14,6 +14,8 @@ push and pull request, on all branches. It installs the locked development
 dependencies with `npm ci`, then checks HTML, CSS, and JavaScript separately.
 A lint error or warning fails the workflow. No database or running PHP server
 is needed because linting checks source files without running the application.
+The project `.npmrc` enables normal peer-dependency resolution so local installs
+use the same dependency rules as GitHub Actions.
 
 To run the same checks locally, use Node.js 22.22.3 and run:
 

@@ -1,0 +1,31 @@
+{
+  "name": "colors-lamp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Linting tools for the COP 4331 Colors web application",
+  "engines": {
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+  },
+  "scripts": {
+    "lint": "npm run lint:html && npm run lint:css && npm run lint:js",
+    "lint:html": "html-validate --max-warnings 0 \"public/**/*.html\"",
+    "lint:css": "stylelint --max-warnings 0 \"public/**/*.css\"",
+    "lint:js": "eslint . --max-warnings 0"
+  },
+  "overrides": {
+    "eslint": {
+      "minimatch": "11.0.1"
+    },
+    "@eslint/config-array": {
+      "minimatch": "11.0.1"
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.14.0",
+    "globals": "17.14.0",
+    "html-validate": "11.19.0",
+    "stylelint": "18.0.0",
+    "stylelint-config-standard": "41.0.0"
+  }
+}

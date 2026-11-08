@@ -1,3 +1,6 @@
+// These functions are called by the HTML pages.
+/* exported doLogin, readCookie, doLogout, addColor, searchColor */
+
 const urlBase = '/LAMPAPI';
 const extension = 'php';
 
@@ -11,26 +14,26 @@ function doLogin()
 	firstName = "";
 	lastName = "";
 
-	let login = document.getElementById("loginName").value;
-	let password = document.getElementById("loginPassword").value;
+	const login = document.getElementById("loginName").value;
+	const password = document.getElementById("loginPassword").value;
 
 	document.getElementById("loginResult").innerHTML = "";
 
-	let tmp = {login:login,password:password};
-	let jsonPayload = JSON.stringify( tmp );
+	const tmp = {login:login,password:password};
+	const jsonPayload = JSON.stringify( tmp );
 
-	let url = urlBase + '/Login.' + extension;
+	const url = urlBase + '/Login.' + extension;
 
-	let xhr = new XMLHttpRequest();
+	const xhr = new XMLHttpRequest();
 	xhr.open("POST", url, true);
 	xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
 	try
 	{
 		xhr.onreadystatechange = function()
 		{
-			if (this.readyState == 4 && this.status == 200)
+			if (this.readyState === 4 && this.status === 200)
 			{
-				let jsonObject = JSON.parse( xhr.responseText );
+				const jsonObject = JSON.parse( xhr.responseText );
 				userId = jsonObject.id;
 
 				if( userId < 1 )
@@ -58,8 +61,8 @@ function doLogin()
 
 function saveCookie()
 {
-	let minutes = 20;
-	let date = new Date();
+	const minutes = 20;
+	const date = new Date();
 	date.setTime(date.getTime()+(minutes*60*1000));
 	document.cookie = "firstName=" + firstName + ",lastName=" + lastName + ",userId=" + userId + ";expires=" + date.toGMTString();
 }
@@ -67,21 +70,21 @@ function saveCookie()
 function readCookie()
 {
 	userId = -1;
-	let data = document.cookie;
-	let splits = data.split(",");
-	for(var i = 0; i < splits.length; i++)
+	const data = document.cookie;
+	const splits = data.split(",");
+	for(let i = 0; i < splits.length; i++)
 	{
-		let thisOne = splits[i].trim();
-		let tokens = thisOne.split("=");
-		if( tokens[0] == "firstName" )
+		const thisOne = splits[i].trim();
+		const tokens = thisOne.split("=");
+		if( tokens[0] === "firstName" )
 		{
 			firstName = tokens[1];
 		}
-		else if( tokens[0] == "lastName" )
+		else if( tokens[0] === "lastName" )
 		{
 			lastName = tokens[1];
 		}
-		else if( tokens[0] == "userId" )
+		else if( tokens[0] === "userId" )
 		{
 			userId = parseInt( tokens[1].trim() );
 		}
@@ -108,24 +111,24 @@ function doLogout()
 
 function addColor()
 {
-	let newColor = document.getElementById("colorText").value;
+	const newColor = document.getElementById("colorText").value;
 	document.getElementById("colorAddResult").innerHTML = "";
 
-	let tmp = {color:newColor,userId:userId};
-	let jsonPayload = JSON.stringify( tmp );
+	const tmp = {color:newColor,userId:userId};
+	const jsonPayload = JSON.stringify( tmp );
 
-	let url = urlBase + '/AddColor.' + extension;
+	const url = urlBase + '/AddColor.' + extension;
 
-	let xhr = new XMLHttpRequest();
+	const xhr = new XMLHttpRequest();
 	xhr.open("POST", url, true);
 	xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
 	try
 	{
 		xhr.onreadystatechange = function()
 		{
-			if (this.readyState == 4 && this.status == 200)
+			if (this.readyState === 4 && this.status === 200)
 			{
-				let jsonObject = JSON.parse( xhr.responseText );
+				const jsonObject = JSON.parse( xhr.responseText );
 				document.getElementById("colorAddResult").textContent = jsonObject.error || "Color has been added";
 			}
 		};
@@ -140,27 +143,27 @@ function addColor()
 
 function searchColor()
 {
-	let srch = document.getElementById("searchText").value;
+	const srch = document.getElementById("searchText").value;
 	document.getElementById("colorSearchResult").innerHTML = "";
 	document.getElementById("colorList").textContent = "";
 
 	let colorList = "";
 
-	let tmp = {search:srch,userId:userId};
-	let jsonPayload = JSON.stringify( tmp );
+	const tmp = {search:srch,userId:userId};
+	const jsonPayload = JSON.stringify( tmp );
 
-	let url = urlBase + '/SearchColors.' + extension;
+	const url = urlBase + '/SearchColors.' + extension;
 
-	let xhr = new XMLHttpRequest();
+	const xhr = new XMLHttpRequest();
 	xhr.open("POST", url, true);
 	xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
 	try
 	{
 		xhr.onreadystatechange = function()
 		{
-			if (this.readyState == 4 && this.status == 200)
+			if (this.readyState === 4 && this.status === 200)
 			{
-				let jsonObject = JSON.parse( xhr.responseText );
+				const jsonObject = JSON.parse( xhr.responseText );
 				if( jsonObject.error )
 				{
 					document.getElementById("colorSearchResult").textContent = jsonObject.error;

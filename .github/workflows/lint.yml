@@ -1,0 +1,33 @@
+name: Lint
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: HTML, CSS, and JavaScript
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22.22.3'
+          cache: npm
+
+      - name: Install lint tools
+        run: npm ci
+
+      - name: Lint HTML
+        run: npm run lint:html
+
+      - name: Lint CSS
+        run: npm run lint:css
+
+      - name: Lint JavaScript
+        run: npm run lint:js

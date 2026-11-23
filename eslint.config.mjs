@@ -17,4 +17,11 @@ export default [
       globals: globals.browser,
     },
   },
+  {
+    files: ["tests/**/*.test.js"],
+    languageOptions: {
+      sourceType: "commonjs",
+      globals: { ...globals.node, ...globals.jest },
+    },
+  },
 ];

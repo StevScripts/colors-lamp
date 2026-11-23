@@ -1,4 +1,4 @@
-name: Lint
+name: Lint and Test
 
 on: [push, pull_request]
 
@@ -6,9 +6,9 @@ permissions:
   contents: read
 
 jobs:
-  lint:
-    name: HTML, CSS, and JavaScript
-    runs-on: ubuntu-latest
+  lint-and-test:
+    name: Lint and Jest tests
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Check out repository
@@ -20,7 +20,7 @@ jobs:
           node-version: '22.22.3'
           cache: npm
 
-      - name: Install lint tools
+      - name: Install lint and test tools
         run: npm ci
 
       - name: Lint HTML
@@ -31,3 +31,30 @@ jobs:
 
       - name: Lint JavaScript
         run: npm run lint:js
+
+      - name: Initialize the test database
+        env:
+          MYSQL_PWD: root
+        run: |
+          sudo systemctl start mysql.service
+          mysql --user=root <<'SQL'
+          CREATE DATABASE colors_ci CHARACTER SET utf8mb4;
+          CREATE USER 'colors_ci'@'127.0.0.1' IDENTIFIED BY 'colors_ci_password';
+          GRANT SELECT, INSERT ON colors_ci.* TO 'colors_ci'@'127.0.0.1';
+          SQL
+          mysql --user=root colors_ci < database/schema.sql
+          mysql --user=root colors_ci < tests/fixtures/test-user.sql
+
+      - name: Run Jest unit and integration tests
+        env:
+          DB_HOST: '127.0.0.1'
+          DB_NAME: colors_ci
+          DB_USER: colors_ci
+          DB_PASSWORD: colors_ci_password
+        run: |
+          php -S 127.0.0.1:8000 -t public scripts/router.php &
+          php_pid=$!
+          trap 'kill "$php_pid" 2>/dev/null || true' EXIT
+          curl --fail --silent --show-error --retry 10 --retry-connrefused --retry-delay 1 \
+            http://127.0.0.1:8000/index.html > /dev/null
+          npm test -- --verbose

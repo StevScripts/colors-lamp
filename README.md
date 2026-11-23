@@ -12,10 +12,10 @@ setup, code fixes, verification, and repository organization.
 The GitHub Actions workflow in `.github/workflows/lint.yml` runs on every
 push and pull request, on all branches. It installs the locked development
 dependencies with `npm ci`, then checks HTML, CSS, and JavaScript separately.
-A lint error or warning fails the workflow. No database or running PHP server
-is needed because linting checks source files without running the application.
-The project `.npmrc` enables normal peer-dependency resolution so local installs
-use the same dependency rules as GitHub Actions.
+It then starts PHP and MySQL on the runner and runs the Jest tests. A lint error,
+warning, or test failure fails the workflow. The project `.npmrc` enables normal
+peer-dependency resolution so local installs use the same dependency rules as
+GitHub Actions.
 
 To run the same checks locally, use Node.js 22.22.3 and run:
 
@@ -39,10 +39,31 @@ ESLint uses its recommended rules plus strict equality, `no-var`, and
 The `exported` comment in `code.js` identifies the functions called from HTML
 so unused-variable checks remain enabled.
 
-The `minimatch` overrides in `package.json` pin ESLint's glob dependencies to
-the patched version for [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249).
+The `glob` and `minimatch` overrides in `package.json` keep ESLint and Jest's
+transitive dependencies on versions patched for
+[GHSA-3g3m-2fjr-6pw4](https://github.com/advisories/GHSA-3g3m-2fjr-6pw4) and
+[GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249).
 
-To debug a failed run, open the repository's **Actions** tab, select the **Lint**
-run, and expand the failing step. Run that step's individual command locally,
-fix the reported file and line, then commit and push again. The final commit
-should have a green **Lint** run before submission.
+### Automated tests
+
+- The front-end unit tests check how the browser script displays search results
+  and the message for no matches. Run them with `npm test -- tests/unit`.
+- The integration test sends real requests to PHP to log in, save a color in
+  MySQL, and search by part of its name. It checks the status, content type, and
+  JSON returned by each endpoint.
+
+To run both suites locally, set up a fresh MySQL test database and import
+`database/schema.sql` followed by `tests/fixtures/test-user.sql`. Use PHP 8 with
+`mysqli` enabled. Set `DB_HOST`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD` in the
+server's shell, using a database account with `SELECT` and `INSERT` on the test
+database. Start PHP from the repository root:
+
+```sh
+php -S 127.0.0.1:8000 -t public scripts/router.php
+```
+
+Run `npm test` in a second terminal. Node.js runs the lint tools and Jest.
+
+To debug a failed run, open the repository's **Actions** tab, select the
+**Lint and Test** run, and expand the failing step. Fix the failure, then
+commit and push again. Use the commit with a green run for submission.
